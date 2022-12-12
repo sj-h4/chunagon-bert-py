@@ -1,0 +1,14 @@
+certifi==2022.12.7
+charset-normalizer==2.1.1
+idna==3.4
+mpmath==1.2.1
+networkx==3.0rc1
+numpy==1.24.0rc2
+Pillow==9.3.0
+requests==2.28.1
+sympy==1.11.1
+torch==2.0.0.dev20221211
+torchaudio==0.14.0.dev20221211
+torchvision==0.15.0.dev20221211
+typing_extensions==4.4.0
+urllib3==1.26.13
