@@ -43,7 +43,23 @@ def get_sum_hidden_states(text: str, token_index: int):
     ).unsqueeze(0)
     outputs = model(input_ids)
     hidden_states = outputs.hidden_states
-    print(type(hidden_states))
+    token_embeddings = torch.stack(hidden_states, dim=0)
+    token_embeddings = torch.squeeze(token_embeddings, dim=1)
+    token_embeddings = token_embeddings.permute(1,0,2)
+    target_token = token_embeddings[token_index]
+    sum_vec = torch.sum(target_token[-4:], dim=0)  # 4層のhidden stateを足し合わせる
+    return sum_vec
 
-#get_last_hidden_state("公園で遊んだ。", 1)
-get_sum_hidden_states("公園で遊んだ。", 1)
+def main():
+    texts = [
+        "公園で遊んだ。",
+        "ナイフで木を切った。",
+        "今日で一週間が経った。",
+    ]
+    sim = cos_similarity(get_sum_hidden_states(texts[0], 1), get_sum_hidden_states(texts[1], 1))
+    dist = torch.dist(get_sum_hidden_states(texts[0], 1), get_sum_hidden_states(texts[1], 1))
+    print('cos類似度', sim)
+    print('距離', dist)
+
+if __name__ == "__main__":
+    main()
