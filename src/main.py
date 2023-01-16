@@ -60,8 +60,9 @@ def get_word_embedding(text: str, token_index: int):
     input_ids = torch.tensor(tokenizer.encode(text, add_special_tokens=True)).unsqueeze(
         0
     )
-    outputs = model(input_ids)
-    hidden_states = outputs.hidden_states
+    with torch.no_grad():
+        outputs = model(input_ids)
+        hidden_states = outputs.hidden_states
     token_embeddings = torch.stack(hidden_states, dim=0)
     token_embeddings = torch.squeeze(token_embeddings, dim=1)
     token_embeddings = token_embeddings.permute(1, 0, 2)
@@ -76,6 +77,7 @@ def save_files_for_visualization(
     """
     メタデータと埋め込みベクトルを保存する
     """
+    print('Saving files for visualization...')
     with open(metadata_file_name, "w+", encoding="utf-8") as f:
         for embedding in embeddings:
             f.write(embedding.text + "\n")
