@@ -1,7 +1,11 @@
-from transformers import AutoTokenizer, AutoModelForMaskedLM, BertConfig
+from transformers import AutoTokenizer, BertModel, BertConfig
 import torch
 import numpy as np
 
+model_name: str = "cl-tohoku/bert-base-japanese-v2"
+config = BertConfig.from_pretrained(model_name, output_hidden_states=True)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = BertModel.from_pretrained(model_name, config=config)
 
 def cos_similarity(x, y, eps=1e-8):
     """
@@ -11,17 +15,17 @@ def cos_similarity(x, y, eps=1e-8):
     ny = y / (torch.sqrt(torch.sum(y ** 2)) + eps)
     return torch.dot(nx, ny)
 
-def get_tokens():
-    model_name: str = "cl-tohoku/bert-base-japanese-v2"
-    config = BertConfig.from_pretrained(model_name, output_hidden_states=True)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForMaskedLM.from_pretrained(model_name, config=config)
+def get_token(text: str):
+    token = tokenizer.tokenize(text)
+    return token
+
+def get_hidden_states(text: str, token_index: int):
     input_ids = torch.tensor(
         tokenizer.encode("私はまだ名前を持っていない。", add_special_tokens=True)
     ).unsqueeze(0)
     outputs = model(input_ids)
-    hidden_states = outputs.hidden_states
-    print(input_ids)
+    hidden_states = outputs.last_hidden_state
+    print(type(hidden_states))
 
 
-get_tokens()
+get_hidden_states("公園で遊んだ。", 1)
