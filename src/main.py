@@ -1,4 +1,5 @@
 import csv
+import sys
 from transformers import AutoTokenizer, BertModel, BertConfig
 import torch
 
@@ -22,6 +23,17 @@ def cos_similarity(x, y, eps=1e-8):
 def get_tokens(text: str):
     token = tokenizer.tokenize(text)
     return token
+
+
+def find_target_token_index(text: str, target_token: str):
+    """
+    対象の単語が何番目のトークンかを返す
+    """
+    tokens = get_tokens(text)
+    for i, token in enumerate(tokens):
+        if token == target_token:
+            return i
+    return -1
 
 
 def get_last_hidden_state(text: str, token_index: int):
@@ -71,28 +83,25 @@ def save_files_for_visualization(
     with open(embedding_file_name, "w+", encoding="utf-8") as f:
         writer = csv.writer(f, delimiter="\t")
         for embedding in embeddings:
-            writer.writerow(embedding.embedding)
+            writer.writerow(embedding.embedding.numpy())
 
 
 def main():
-    texts = [
-        "公園で遊んだ。",
-        "この本で述べた。",
-        "大会で優勝する、",
-        "ナイフで木を切った。",
-        "飛行機で東京に行く。",
-        "今日で一週間が経った。",
-    ]
-    target_text1 = texts[0]
-    target_text2 = texts[4]
-    embeddnig1 = get_word_embedding(target_text1, 1)
-    embeddnig2 = get_word_embedding(target_text2, 2)
-    print(get_tokens(target_text1))
-    print(get_tokens(target_text2))
-    sim = cos_similarity(embeddnig1, embeddnig2)
-    dist = torch.dist(embeddnig1, embeddnig2)
-    print("cos類似度", sim.item())
-    print("距離", dist.item())
+    args = sys.argv
+    input_file_path = args[1]
+    metadata_file_name = args[2]
+    embedding_file_name = args[3]
+    target_token = 'で'
+    embeddings: list[Embedding] = []
+    with open(input_file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.rstrip()
+            target_token_idx = find_target_token_index(line, target_token)
+            if target_token_idx == -1:
+                continue
+            embedding = get_word_embedding(line, target_token_idx)
+            embeddings.append(Embedding(line, target_token, embedding))
+    save_files_for_visualization(embeddings, metadata_file_name, embedding_file_name)
 
 
 if __name__ == "__main__":
