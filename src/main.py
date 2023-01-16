@@ -102,6 +102,7 @@ def main():
             embedding = get_word_embedding(line, target_token_idx)
             embeddings.append(Embedding(line, target_token, embedding))
     save_files_for_visualization(embeddings, metadata_file_name, embedding_file_name)
+    print('Done!')
 
 
 if __name__ == "__main__":
