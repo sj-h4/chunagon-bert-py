@@ -1,17 +1,21 @@
-from transformers import AlbertTokenizer, AlbertForPreTraining, AlbertConfig
+from transformers import AutoTokenizer, AutoModelForMaskedLM, BertConfig
 import torch
 import numpy as np
 
 
-def get_cos_sim(v1, v2):
-    return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-
+def cos_similarity(x, y, eps=1e-8):
+    """
+    コサイン類似度を計算する
+    """
+    nx = x / (torch.sqrt(torch.sum(x ** 2)) + eps)
+    ny = y / (torch.sqrt(torch.sum(y ** 2)) + eps)
+    return torch.dot(nx, ny)
 
 def get_tokens():
-    model_name: str = "ken11/albert-base-japanese-v1"
-    config = AlbertConfig.from_pretrained(model_name, output_hidden_states=True)
-    tokenizer = AlbertTokenizer.from_pretrained(model_name)
-    model = AlbertForPreTraining.from_pretrained(model_name, config=config)
+    model_name: str = "cl-tohoku/bert-base-japanese-v2"
+    config = BertConfig.from_pretrained(model_name, output_hidden_states=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForMaskedLM.from_pretrained(model_name, config=config)
     input_ids = torch.tensor(
         tokenizer.encode("私はまだ名前を持っていない。", add_special_tokens=True)
     ).unsqueeze(0)
