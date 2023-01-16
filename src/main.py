@@ -19,7 +19,7 @@ def get_token(text: str):
     token = tokenizer.tokenize(text)
     return token
 
-def get_hidden_states(text: str, token_index: int):
+def get_last_hidden_state(text: str, token_index: int):
     input_ids = torch.tensor(
         tokenizer.encode("私はまだ名前を持っていない。", add_special_tokens=True)
     ).unsqueeze(0)
@@ -27,5 +27,23 @@ def get_hidden_states(text: str, token_index: int):
     hidden_states = outputs.last_hidden_state
     print(type(hidden_states))
 
+def get_sum_hidden_states(text: str, token_index: int):
+    """
+    最後の4層のhidden stateを足し合わせる
 
-get_hidden_states("公園で遊んだ。", 1)
+    Parameters
+    ----------
+    text : str
+        _description_
+    token_index : int
+        _description_
+    """
+    input_ids = torch.tensor(
+        tokenizer.encode(text, add_special_tokens=True)
+    ).unsqueeze(0)
+    outputs = model(input_ids)
+    hidden_states = outputs.hidden_states
+    print(type(hidden_states))
+
+#get_last_hidden_state("公園で遊んだ。", 1)
+get_sum_hidden_states("公園で遊んだ。", 1)
