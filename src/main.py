@@ -36,17 +36,18 @@ def find_target_token_index(text: str, target_token: str):
     return -1
 
 
-def get_last_hidden_state(text: str, token_index: int):
+def get_word_embedding(text: str, token_index: int):
     input_ids = torch.tensor(tokenizer.encode(text, add_special_tokens=True)).unsqueeze(
         0
     )
-    outputs = model(input_ids)
-    hidden_states = outputs.last_hidden_state
-    print(len(hidden_states))
-    return hidden_states[token_index]
+    with torch.no_grad():
+        outputs = model(input_ids)
+        hidden_states = outputs.last_hidden_state
+    token_embeddings = torch.squeeze(hidden_states, dim=0)
+    return token_embeddings[token_index]
 
 
-def get_word_embedding(text: str, token_index: int):
+def sum_word_embedding(text: str, token_index: int):
     """
     最後の4層のhidden stateを足し合わせたベクトルを取得する
 
@@ -78,14 +79,23 @@ def save_files_for_visualization(
     メタデータと埋め込みベクトルを保存する
     """
     print('Saving files for visualization...')
-    with open(metadata_file_name, "w+", encoding="utf-8") as f:
+    with open(metadata_file_name, "w", encoding="utf-8") as f:
         for embedding in embeddings:
-            f.write(embedding.text + "\n")
+            f.write(embedding.text.replace('\t', '') + "\n")
 
-    with open(embedding_file_name, "w+", encoding="utf-8") as f:
+    with open(embedding_file_name, "w", encoding="utf-8") as f:
         writer = csv.writer(f, delimiter="\t")
         for embedding in embeddings:
             writer.writerow(embedding.embedding.numpy())
+
+
+def compare_tokens(text1: str, token_id1: int, text2: str, token_id2: int):
+    """
+    2つのトークンの類似度を計算する
+    """
+    vec1 = get_word_embedding(text1, token_id1)
+    vec2 = get_word_embedding(text2, token_id2)
+    return cos_similarity(vec1, vec2)
 
 
 def main():
