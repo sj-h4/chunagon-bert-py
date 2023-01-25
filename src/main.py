@@ -5,7 +5,8 @@ import torch
 
 from models.embedding import Embedding
 
-model_name: str = "cl-tohoku/bert-base-japanese-v2"
+# model_name: str = "cl-tohoku/bert-base-japanese-v2"
+model_name = "cl-tohoku/bert-large-japanese"
 config = BertConfig.from_pretrained(model_name, output_hidden_states=True)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = BertModel.from_pretrained(model_name, config=config)
@@ -111,7 +112,7 @@ def main():
             target_token_idx = find_target_token_index(line, target_token)
             if target_token_idx == -1:
                 continue
-            embedding = get_word_embedding(line, target_token_idx)
+            embedding = sum_word_embedding(line, target_token_idx)
             embeddings.append(Embedding(line, target_token, embedding))
     save_files_for_visualization(embeddings, metadata_file_name, embedding_file_name)
     print('Done!')
