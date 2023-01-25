@@ -4,6 +4,7 @@ from transformers import AutoTokenizer, BertModel, BertConfig
 import torch
 
 from models.embedding import Embedding
+from visualizer import compress, visualize
 
 # model_name: str = "cl-tohoku/bert-base-japanese-v2"
 model_name = "cl-tohoku/bert-large-japanese"
@@ -114,7 +115,9 @@ def main():
                 continue
             embedding = sum_word_embedding(line, target_token_idx)
             embeddings.append(Embedding(line, target_token, embedding))
-    save_files_for_visualization(embeddings, metadata_file_name, embedding_file_name)
+    # save_files_for_visualization(embeddings, metadata_file_name, embedding_file_name)
+    reduced_embeddings = compress(embeddings)
+    visualize(reduced_embeddings)
     print('Done!')
 
 
