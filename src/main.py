@@ -4,7 +4,7 @@ from transformers import AutoTokenizer, BertModel, BertConfig
 import torch
 
 from models.embedding import Embedding
-from visualizer import compress, visualize
+from visualizer import cluster, compress, visualize
 
 # model_name: str = "cl-tohoku/bert-base-japanese-v2"
 model_name = "cl-tohoku/bert-large-japanese"
@@ -74,6 +74,17 @@ def sum_word_embedding(text: str, token_index: int):
     return sum_vec
 
 
+def save_clusered_texts(cluster_list: list, embeddings: list[Embedding], output_file_name: str):
+    """
+    クラスタリングされたテキストを保存する
+    """
+    print('Saving clustered texts...')
+    with open(output_file_name, "w", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        for i, cluster in enumerate(cluster_list):
+            writer.writerow([embeddings[i].text, cluster])
+
+
 def save_files_for_visualization(
     embeddings: list[Embedding], metadata_file_name: str, embedding_file_name: str
 ):
@@ -117,7 +128,9 @@ def main():
             embeddings.append(Embedding(line, target_token, embedding))
     # save_files_for_visualization(embeddings, metadata_file_name, embedding_file_name)
     reduced_embeddings = compress(embeddings)
-    visualize(reduced_embeddings)
+    cluster_list = cluster(reduced_embeddings)
+    save_clusered_texts(cluster_list, embeddings, 'output/clustered_texts.csv')
+    visualize(reduced_embeddings, cluster_list)
     print('Done!')
 
 
