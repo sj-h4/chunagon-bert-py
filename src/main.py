@@ -1,5 +1,5 @@
+import argparse
 import csv
-import sys
 from transformers import AutoTokenizer, BertModel, BertConfig
 import torch
 
@@ -82,7 +82,7 @@ def save_clusered_texts(cluster_list: list, embeddings: list[Embedding], output_
     with open(output_file_name, "w", encoding="utf-8") as f:
         writer = csv.writer(f)
         for i, cluster in enumerate(cluster_list):
-            writer.writerow([embeddings[i].text, cluster])
+            writer.writerow([embeddings[i].text.replace('\t', ''), cluster])
 
 
 def save_files_for_visualization(
@@ -112,10 +112,12 @@ def compare_tokens(text1: str, token_id1: int, text2: str, token_id2: int):
 
 
 def main():
-    args = sys.argv
-    input_file_path = args[1]
-    metadata_file_name = args[2]
-    embedding_file_name = args[3]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input", help="入力テキストファイルのパス")
+    parser.add_argument("-o", "--output", help="出力ファイルのパス", default="output/clustered_texts.csv")
+    args = parser.parse_args()
+    input_file_path = args.input
+    output_file_path = args.output
     target_token = 'で'
     embeddings: list[Embedding] = []
     with open(input_file_path, "r", encoding="utf-8") as f:
@@ -126,10 +128,9 @@ def main():
                 continue
             embedding = sum_word_embedding(line, target_token_idx)
             embeddings.append(Embedding(line, target_token, embedding))
-    # save_files_for_visualization(embeddings, metadata_file_name, embedding_file_name)
     reduced_embeddings = compress(embeddings)
     cluster_list = cluster(reduced_embeddings)
-    save_clusered_texts(cluster_list, embeddings, 'output/clustered_texts.csv')
+    save_clusered_texts(cluster_list, embeddings, output_file_path)
     visualize(reduced_embeddings, cluster_list)
     print('Done!')
 

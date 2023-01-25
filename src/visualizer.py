@@ -6,9 +6,14 @@ import numpy as np
 
 from models.embedding import Embedding
 
+
 def compress(embeddings: list[Embedding]):
     tsne = TSNE(n_components=2, random_state=0)
-    reduced_embeddings = tsne.fit_transform(np.array([embedding.embedding.detach().numpy().copy() for embedding in embeddings]))
+    reduced_embeddings = tsne.fit_transform(
+        np.array(
+            [embedding.embedding.detach().numpy().copy() for embedding in embeddings]
+        )
+    )
     return reduced_embeddings
 
 
@@ -18,12 +23,22 @@ def cluster(vector):
 
 
 def visualize(vectors: list, labels: list):
-    data = {
-        'x': [vector[0] for vector in vectors],
-        'y': [vector[1] for vector in vectors],
-        'label': labels
+    color_map = {
+        0: "red",
+        1: "blue",
+        2: "green",
+        3: "yellow",
+        4: "orange",
+        5: "purple",
     }
-    hv.extension('bokeh')
-    points = hv.Points(data, kdims=['x', 'y'], vdims='label').opts(color=dim('label'), width=800, height=800)
-    renderer = hv.renderer('bokeh')
-    renderer.save(points, 'server/index')
+    data = {
+        "x": [vector[0] for vector in vectors],
+        "y": [vector[1] for vector in vectors],
+        "label": labels,
+    }
+    hv.extension("bokeh")
+    points = hv.Points(data, kdims=["x", "y"], vdims="label").sort('label').opts(
+        color=dim("label"), cmap=color_map, width=800, height=800
+    )
+    renderer = hv.renderer("bokeh")
+    renderer.save(points, "server/index")
