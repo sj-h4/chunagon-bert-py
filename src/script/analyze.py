@@ -47,10 +47,14 @@ def func(pct, allvals):
 def show_graph(category_count: dict, cluster_count: dict):
     # クラスタごとのカテゴリーをグラフ化
     category_list = ['category_a', 'category_b', 'category_c', 'category_d', 'category_e', 'category_f']
+    category_labels = ['A 時空間系', 'B 手段系', 'C 因果系', 'D 付帯状況系', 'E 範囲系', 'F 対比系']
     cluster_list = ['cluster_0', 'cluster_1', 'cluster_2', 'cluster_3', 'cluster_4', 'cluster_5']
+    cluster_labels = ['cluster 0', 'cluster 1', 'cluster 2', 'cluster 3', 'cluster 4', 'cluster 5']
+
     category_count_list: list[dict] = [category_count[cluster] for cluster in cluster_list]
     cluster_count_list = [cluster_count[category] for category in category_list]
 
+    plt.rcParams['font.family'] = 'Hiragino Maru Gothic Pro'
     fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
     for i in range(6):
         x = 0
@@ -61,8 +65,8 @@ def show_graph(category_count: dict, cluster_count: dict):
             y = i - 3
         values = list(category_count_list[i].values())
         axs[x, y].pie(values, autopct=lambda pct: func(pct, values))
-        axs[x, y].set_title(cluster_list[i])
-    fig.legend(category_list, loc='upper right')
+        axs[x, y].set_title(cluster_labels[i])
+    fig.legend(category_labels, loc='upper right')
     fig.tight_layout()
     fig.savefig('output/cluster.png')
 
@@ -76,8 +80,8 @@ def show_graph(category_count: dict, cluster_count: dict):
             y = i - 3
         values = list(cluster_count_list[i].values())
         axs[x, y].pie(values, autopct=lambda pct: func(pct, values))
-        axs[x, y].set_title(category_list[i])
-    fig.legend(cluster_list, loc='upper right')
+        axs[x, y].set_title(category_labels[i])
+    fig.legend(cluster_labels, loc='upper right')
     fig.tight_layout()
     fig.savefig('output/category.png')
 
