@@ -1,5 +1,6 @@
 import argparse
 import csv
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -37,11 +38,17 @@ def analyze(tagged_list: list):
         print(ratio, end='\n\n')
     return category_count_by_cluster, cluster_count_by_category
 
+
+def func(pct, allvals):
+    absolute = int(np.round(pct/100.*np.sum(allvals)))
+    return "{:.1f}%\n({:d})".format(pct, absolute)
+
+
 def show_graph(category_count: dict, cluster_count: dict):
     # クラスタごとのカテゴリーをグラフ化
     category_list = ['category_a', 'category_b', 'category_c', 'category_d', 'category_e', 'category_f']
     cluster_list = ['cluster_0', 'cluster_1', 'cluster_2', 'cluster_3', 'cluster_4', 'cluster_5']
-    category_count_list = [category_count[cluster] for cluster in cluster_list]
+    category_count_list: list[dict] = [category_count[cluster] for cluster in cluster_list]
     cluster_count_list = [cluster_count[category] for category in category_list]
 
     fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
@@ -52,11 +59,27 @@ def show_graph(category_count: dict, cluster_count: dict):
         y = i
         if i > 2:
             y = i - 3
-        values = category_count_list[i].values()
-        axs[x, y].pie(values, autopct='%1.1f%%')
+        values = list(category_count_list[i].values())
+        axs[x, y].pie(values, autopct=lambda pct: func(pct, values))
+        axs[x, y].set_title(cluster_list[i])
     fig.legend(category_list, loc='upper right')
     fig.tight_layout()
     fig.savefig('output/cluster.png')
+
+    fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
+    for i in range(6):
+        x = 0
+        if i > 2:
+            x = 1
+        y = i
+        if i > 2:
+            y = i - 3
+        values = list(cluster_count_list[i].values())
+        axs[x, y].pie(values, autopct=lambda pct: func(pct, values))
+        axs[x, y].set_title(category_list[i])
+    fig.legend(cluster_list, loc='upper right')
+    fig.tight_layout()
+    fig.savefig('output/category.png')
 
 
 if __name__ == '__main__':
