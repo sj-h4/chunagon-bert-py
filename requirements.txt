@@ -45,7 +45,7 @@ torch==2.0.0.dev20221211
 torchaudio==0.14.0.dev20221211
 torchvision==0.15.0.dev20221211
 tqdm==4.64.1
-transformers==4.25.1
+transformers==4.36.0
 typing_extensions==4.4.0
 unidic-lite==1.0.8
 urllib3==1.26.13
